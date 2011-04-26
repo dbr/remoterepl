@@ -1,5 +1,4 @@
 (require 'comint)
-
 (provide 'remote-repl)
 
 
@@ -17,7 +16,7 @@
    (comint-send-string remote-repl-buffer cmdstr)
    (comint-send-string remote-repl-buffer "\n"))
 
-(defun remote-repl-send-region (start end)
+(defun remote-repl-send-region (&optional start end)
   (interactive "r")
   (let* ((cmdstr (buffer-substring-no-properties start end)))
-    (remote-repl-send-region cmdstr)))
+    (remote-repl-send-string cmdstr)))

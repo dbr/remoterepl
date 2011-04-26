@@ -15,7 +15,6 @@ class RemoteReplClientCLI(cmd.Cmd):
             self.prompt = "(%s) " % self.proxy.proc_name()
         except xmlrpclib.Fault:
             self.prompt = self.DEFAULT_PROMPT
-            pass
 
     def _set_server(self, hoststr):
         """Set/change the XML RPC server address by making a new
@@ -24,18 +23,13 @@ class RemoteReplClientCLI(cmd.Cmd):
         self.proxy = xmlrpclib.ServerProxy(hoststr)
 
     def __init__(self):
-        cmd.Cmd.__init__(self, completekey = "Tab")
+        cmd.Cmd.__init__(self)
         self._set_server("http://localhost:4356/")
         self._set_prompt()
 
     def do_EOF(self,parameters):
-        #TODO: Send stop command to proxy?
-        print
+        print # New line then exit
         sys.exit()
-
-    def completedefault(self, text, line, begidx, endidx):
-        print "in complete default"
-        return ['a']
 
     def precmd(self, line):
         if line == "EOF":
@@ -45,16 +39,17 @@ class RemoteReplClientCLI(cmd.Cmd):
             # Lines starting with back-slash are not eval'ifed
             return line[1:]
         else:
-            # Any other lines have eval prefixed, so they are run via
-            # the do_eval method
+            # Any other lines are prefixed with eval, so they are run
+            # via the do_eval method
             return "eval %s" % line
 
     def do_eval(self, line):
+        """Uses the proxy to run the command string, and outputs the
+        response
+        """
         ret = self.proxy.eval(line)
-        if ret['status'] == 'okay':
-            print '[Executed okay]\n%s' % ret['outstr']
-        elif ret['status'] == 'exception':
-            print '[Traceback]\n%s' % ret['outstr']
+        if ret['status'] in ['okay', 'exception']:
+            print '%s' % ret['outstr']
         else:
             print "[Unknown response]"
             pp(ret)
@@ -63,5 +58,6 @@ class RemoteReplClientCLI(cmd.Cmd):
 
 
 
-p = RemoteReplClientCLI()
-p.cmdloop("Remote REPL")
+if __name__ == '__main__':
+    p = RemoteReplClientCLI()
+    p.cmdloop("Remote REPL")
