@@ -4,11 +4,16 @@
 
 (defvar remote-repl-buffer "remote-repl")
 
+(defvar remote-repl-clientpy
+  (expand-file-name
+   "client.py"
+   (file-name-directory (or load-file-name (buffer-file-name)))))
+
 (defun run-remote-repl (&optional dont-switch-p)
   (interactive)
 
   (setq remote-repl-buffer
-        (make-comint "remote-repl" "python" nil "/Users/dbr/code/remoterepl/client.py"))
+        (make-comint "remote-repl" "python" nil remote-repl-clientpy))
   (if (not dont-switch-p)
       (pop-to-buffer remote-repl-buffer)))
 
